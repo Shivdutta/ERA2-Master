@@ -23,7 +23,7 @@ class Session10Net(nn.Module):
         stride_list = [1]
         padding_list = [1]
         dilation_list = [0]
-        conv_type = ['standard','standard']
+        conv_type = ['standard']
         max_pool_list=[0]
         self.prep_layer = self.get_conv_block(conv_type, in_channels, out_channels_list, kernel_size_list, stride_list, padding_list,dilation_list,
                             max_pool_list, activation_fn = nn.ReLU(inplace=True),normalization='batch',number_of_groups =None,
@@ -39,7 +39,7 @@ class Session10Net(nn.Module):
         padding_list = [1]
         dilation_list = [0]
         conv_type = ['standard']
-        max_pool_list=[0]
+        max_pool_list=[2]
         self.custom_block1 = self.get_conv_block(conv_type, in_channels, out_channels_list, kernel_size_list, stride_list, padding_list,dilation_list,max_pool_list,
                         activation_fn = nn.ReLU(inplace=True),normalization='batch',number_of_groups =None,last_layer=False)
         self.resnet_block1 = self.resnet_block(channels=128)
@@ -53,11 +53,10 @@ class Session10Net(nn.Module):
         out_channels_list = [256]
         kernel_size_list = [3]
         stride_list = [1]
-        padding_list = [0]
+        padding_list = [1]
         dilation_list = [0]
         conv_type = ['standard']
-        #max_pool_list = [2]
-        max_pool_list = [0]
+        max_pool_list = [2]
         self.custom_block2 = self.get_conv_block(conv_type, in_channels, out_channels_list, kernel_size_list, stride_list, padding_list,dilation_list,max_pool_list,
                         activation_fn = nn.ReLU(inplace=True),normalization='batch',number_of_groups =None,last_layer=False)
         #Max pool of 2D  -- I have to send list of [T,F,T] Fi if true then add max pool
@@ -73,8 +72,7 @@ class Session10Net(nn.Module):
         padding_list = [1]
         dilation_list = [0]
         conv_type = ['standard']
-        #max_pool_list = [2]
-        max_pool_list = [0]
+        max_pool_list = [2]
         self.custom_block3 = self.get_conv_block(conv_type, in_channels, out_channels_list, kernel_size_list, stride_list, padding_list,dilation_list,max_pool_list,
                         activation_fn = nn.ReLU(inplace=True),normalization='batch',number_of_groups =None,last_layer=False)
         self.resnet_block3 = self.resnet_block(channels=512)
@@ -162,7 +160,7 @@ class Session10Net(nn.Module):
         """
         assert len(out_channels_list) == len(kernel_size_list) == len(stride_list) == len(padding_list), "Lengths of lists should match"
         layers = []
-        print("len(out_channels_list)",len(out_channels_list))
+        #print("len(out_channels_list)",len(out_channels_list))
         for i in range(len(out_channels_list)):
             if i == 0:
                 if conv_type[i] == "standard":
@@ -186,8 +184,8 @@ class Session10Net(nn.Module):
 
             if not last_layer:
                 _norm_layer = self.get_normalization_layer(normalization,out_channels_list[i],number_of_groups)
-                if max_pool_list[i]>0:
-                        layers.append(nn.MaxPool2d(kernel_size_list[i]))
+                if int(max_pool_list[i])>0:
+                        layers.append(nn.MaxPool2d(kernel_size=max_pool_list[i], stride=max_pool_list[i]))
 
                 layers.append(_norm_layer)
                 layers.append(activation_fn)
