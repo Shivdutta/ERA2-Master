@@ -1,8 +1,6 @@
-#from torchsummary import summary
-import torch
-from torchsummary import summary
+#!/usr/bin/env python3
 from tqdm import tqdm
-import torch.nn.functional as F
+import torch
 
 
 def get_correct_predictions(prediction, labels):
@@ -13,6 +11,7 @@ def get_correct_predictions(prediction, labels):
     :return: Number of correct predictions
     """
     return prediction.argmax(dim=1).eq(labels).sum().item()
+
 
 def train(model, device, train_loader, optimizer, criterion, scheduler=None):
     """
@@ -55,6 +54,7 @@ def train(model, device, train_loader, optimizer, criterion, scheduler=None):
         loss.backward()
         optimizer.step()
 
+        # Use learning rate scheduler if defined
         if scheduler:
             scheduler.step()
 
@@ -94,7 +94,7 @@ def test(model, device, test_loader, criterion):
 
             # Pass the images to the output and get the model predictions
             output = model(data)
-            test_loss += criterion(output, target, reduction='sum').item()  # sum up batch loss
+            test_loss += criterion(output, target).item()  # sum up batch loss
 
             # Sum up batch correct predictions
             correct += get_correct_predictions(output, target)
@@ -107,6 +107,7 @@ def test(model, device, test_loader, criterion):
         100. * correct / len(test_loader.dataset)))
 
     return correct, test_loss
+
 
 def get_lr(optimizer):
     """
