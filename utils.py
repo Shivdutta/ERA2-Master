@@ -9,6 +9,12 @@ from typing import NoReturn
 #from tqdm import tqdm
 #import torch.nn.functional as F
 from torchvision import transforms
+
+from sklearn.metrics import confusion_matrix
+
+from pytorch_grad_cam import GradCAM
+from pytorch_grad_cam.utils.image import show_cam_on_image
+
 # -------------------- DATA STATISTICS --------------------
 def get_mnist_statistics(data_set, data_set_type='Train'):
     """
@@ -381,3 +387,95 @@ def visualize_mnist_augmentation(data_set, data_transforms):
         plt.title(key)
         plt.xticks([])
         plt.yticks([])
+
+# -------------------- GradCam --------------------
+def display_gradcam_output(data: list,
+                           classes: list[str],
+                           inv_normalize: transforms.Normalize,
+                           model,
+                           target_layers: list['model_layer'],
+                           targets=None,
+                           number_of_samples: int = 10,
+                           transparency: float = 0.60):
+    """
+    Function to visualize GradCam output on the data
+    :param data: List[Tuple(image, label)]
+    :param classes: Name of classes in the dataset
+    :param inv_normalize: Mean and Standard deviation values of the dataset
+    :param model: Model architecture
+    :param target_layers: Layers on which GradCam should be executed
+    :param targets: Classes to be focused on for GradCam
+    :param number_of_samples: Number of images to print
+    :param transparency: Weight of Normal image when mixed with activations
+    """
+    # Plot configuration
+    fig = plt.figure(figsize=(10, 10))
+    x_count = 5
+    y_count = 1 if number_of_samples <= 5 else math.floor(number_of_samples / x_count)
+
+    # Create an object for GradCam
+    cam = GradCAM(model=model, target_layers=target_layers)
+
+    # Iterate over number of specified images
+    for i in range(number_of_samples):
+        plt.subplot(y_count, x_count, i + 1)
+        input_tensor = data[i][0]
+
+        # Get the activations of the layer for the images
+        grayscale_cam = cam(input_tensor=input_tensor, targets=targets)
+        grayscale_cam = grayscale_cam[0, :]
+
+        # Get back the original image
+        img = input_tensor.squeeze(0).to('cpu')
+        img = inv_normalize(img)
+        rgb_img = np.transpose(img, (1, 2, 0))
+        rgb_img = rgb_img.numpy()
+
+        # Mix the activations on the original image
+        visualization = show_cam_on_image(rgb_img, grayscale_cam, use_rgb=True, image_weight=transparency)
+
+        # Display the images on the plot
+        plt.imshow(visualization)
+        plt.title(r"Correct: " + classes[data[i][1].item()] + '\n' + 'Output: ' + classes[data[i][2].item()])
+        plt.xticks([])
+        plt.yticks([])
+
+
+#---------------------------- Confusion Matrix ----------------------------
+def visualize_confusion_matrix(classes: list[str], device: str, model,
+                               test_loader: torch.utils.data.DataLoader):
+    """
+    Function to generate and visualize confusion matrix
+    :param classes: List of class names
+    :param device: cuda/cpu
+    :param model: Model Architecture
+    :param test_loader: DataLoader for test set
+    """
+    nb_classes = len(classes)
+    device = 'cuda'
+    cm = torch.zeros(nb_classes, nb_classes)
+
+    model.eval()
+    with torch.no_grad():
+        for inputs, labels in test_loader:
+            inputs = inputs.to(device)
+            labels = labels.to(device)
+            model = model.to(device)
+
+            preds = model(inputs)
+            preds = preds.argmax(dim=1)
+
+        for t, p in zip(labels.view(-1), preds.view(-1)):
+            cm[t, p] = cm[t, p] + 1
+
+    # Build confusion matrix
+    labels = labels.to('cpu')
+    preds = preds.to('cpu')
+    cf_matrix = confusion_matrix(labels, preds)
+    df_cm = pd.DataFrame(cf_matrix / np.sum(cf_matrix, axis=1)[:, None],
+                         index=[i for i in classes],
+                         columns=[i for i in classes])
+    plt.figure(figsize=(12, 7))
+    sn.heatmap(df_cm, annot=True)
+
+
