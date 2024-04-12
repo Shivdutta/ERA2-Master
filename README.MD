@@ -7,25 +7,34 @@ This repository contains following files:
 - `dataset.py`: This script contains class to use with Albumentations (https://github.com/albumentations-team/albumentations) library with PyTorch dataset
 - `training_utils`: This script contains `train`, `test` functions required for model training along with `get_lr` function to get current learning rate
 - `utils.py`: This script  contains utility functions to visualize data samples, augmentations, misclassified images, dataset statistics and model summary. 
+- `augmentation.py`: Includes the transforms to be applied on the datasets
 
 ## Code Details
 
 - `utils.py`:
     - This python script contains collection of utility functions related to data processing, visualization, and model evaluation in PyTorch. Here's a summary of what each function does:
 
-        - get_mnist_statistics: Computes statistics (min, max, mean, std, var) of the MNIST dataset.
-        - get_cifar_statistics: Computes statistics (min, max, mean, std, var) of the CIFAR dataset.
-        - plot_accuracy_losses: Plots training and test losses along with training and test accuracies.
-        - display_data_samples: Displays samples from a dataset along with their labels.
-        - plot_data: Plots images with their correct and predicted labels.
-        - display_loss_and_accuracies: Displays training and test losses along with accuracies.
-        - get_misclassified_data: Retrieves misclassified images from a test set.
-        - display_mnist_data_samples: Displays samples from the MNIST dataset.
-        - display_cifar_data_samples: Displays samples from the CIFAR dataset.
-        - display_cifar_misclassified_data: Displays misclassified images from the CIFAR dataset.
-        - display_mnist_misclassified_data: Displays misclassified images from the MNIST dataset.
-        - visualize_cifar_augmentation: Visualizes augmented data from the CIFAR dataset.
-        - visualize_mnist_augmentation: Visualizes augmented data from the MNIST dataset.
+        - Data Statistics:
+            - get_mnist_statistics: Computes statistics (min, max, mean, std, var) of MNIST dataset.
+            - get_cifar_statistics: Computes statistics (min, max, mean, std, var) of CIFAR dataset.
+        
+        - Loss and Accuracies:
+            - plot_accuracy_losses: Plots training and test losses along with accuracies.
+            - display_data_samples: Displays samples from a dataset.
+            - plot_data: Plots images with correct and predicted labels.
+            - display_loss_and_accuracies: Displays training and test losses along with accuracies.
+
+        - Misclassified Data:
+            - get_misclassified_data: Identifies misclassified images from the test set.
+            - display_mnist_misclassified_data: Displays misclassified images for MNIST dataset.
+            - display_cifar_misclassified_data: Displays misclassified images for CIFAR dataset.
+
+        - Data Augmentation Samples:
+            - visualize_cifar_augmentation: Visualizes augmented CIFAR dataset samples.
+            - visualize_mnist_augmentation: Visualizes augmented MNIST dataset samples.
+        
+        - Confusion Matrix:
+            - visualize_confusion_matrix: Generates and visualizes a confusion matrix for classification results.
 
 - `training_utils`:
     - This Python script defines several functions related to training and evaluating a PyTorch model:
@@ -39,6 +48,19 @@ This repository contains following files:
 
 - `dataset.py`:
     - This Python script defines a custom dataset class TransformedDataset that extends the functionality of the CIFAR10 dataset from torchvision. Here's a summary:
+
+- `resnet.py`:
+    - This code defines a ResNet architecture in PyTorch along with helper functions for ResNet18 and ResNet34. Here's a summary:
+
+        - BasicBlock Class: This defines the basic building block for ResNet. It consists of two convolutional layers with batch normalization and ReLU activation. The shortcut connection allows for the input to be added to the output. This helps in maintaining information flow during training.
+
+        - ResNet Class: This defines the ResNet model using the BasicBlock class. It stacks multiple layers of BasicBlocks, each with increasing feature map sizes. It ends with a fully connected layer for classification.
+
+        - ResNet18 and ResNet34 Functions: These functions instantiate ResNet models with 18 and 34 layers respectively. They specify the number of BasicBlocks in each layer.
+
+        - get_summary Function: This function generates a summary of the model architecture using the torchsummary library. It provides details such as layer types, output shapes, and the number of parameters in the model.
+
+        - Reference: It cites the original paper on Deep Residual Learning for Image Recognition by Kaiming He, et al.
 
 - `custom_resnet.py`:
 
@@ -63,5 +85,5 @@ This repository contains following files:
             - get_normalization_layer: This method generates normalization layers based on the specified technique (batch normalization, layer normalization, or group normalization).
             - depthwise_conv and dilated_conv: These methods create depthwise separable and dilated convolutional layers, respectively.
 
-- Summary Generation: 
-    - The get_summary function generates a summary of the model architecture, including details such as layer types, output shape, and the number of parameters. It utilizes the torchsummary library to produce the summary.
+        - Summary Generation: 
+            - The get_summary function generates a summary of the model architecture, including details such as layer types, output shape, and the number of parameters. It utilizes the torchsummary library to produce the summary.
