@@ -22,9 +22,31 @@ from utils import visualize_cifar_augmentation, display_cifar_data_samples
 
 
 class BasicBlock(LightningModule):
+    """
+    Basic building block for the ResNet architecture.
+
+    Args:
+        in_planes (int): Number of input channels.
+        planes (int): Number of output channels.
+        stride (int, optional): Stride value for the first convolutional layer. Defaults to 1.
+
+    Attributes:
+        expansion (int): Expansion factor for increasing dimensions in the block.
+
+    """
+
     expansion = 1
 
     def __init__(self, in_planes, planes, stride=1):
+        """
+        Initializes the BasicBlock.
+
+        Args:
+            in_planes (int): Number of input channels.
+            planes (int): Number of output channels.
+            stride (int, optional): Stride value for the first convolutional layer. Defaults to 1.
+
+        """
         super(BasicBlock, self).__init__()
         self.conv1 = nn.Conv2d(in_planes, planes, kernel_size=3, stride=stride, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(planes)
@@ -39,6 +61,16 @@ class BasicBlock(LightningModule):
             )
 
     def forward(self, x):
+        """
+        Forward pass through the BasicBlock.
+
+        Args:
+            x (torch.Tensor): Input tensor.
+
+        Returns:
+            torch.Tensor: Output tensor.
+
+        """
         out = F.relu(self.bn1(self.conv1(x)))
         out = self.bn2(self.conv2(out))
         out += self.shortcut(x)
@@ -46,6 +78,32 @@ class BasicBlock(LightningModule):
         return out
 
 class LITResNet(LightningModule):
+    """
+    Lightning Module implementing the ResNet architecture for CIFAR-10 classification.
+
+    Args:
+        class_names (list): List of class names.
+        data_dir (str, optional): Directory path to CIFAR-10 dataset. Defaults to '/data/'.
+
+    Attributes:
+        classes (list): List of class names.
+        data_dir (str): Directory path to CIFAR-10 dataset.
+        num_classes (int): Number of classes in the dataset.
+        _learning_rate (float): Initial learning rate.
+        inv_normalize (torchvision.transforms.Normalize): Inverse normalization transformation.
+        batch_size (int): Batch size for training.
+        epochs (int): Number of epochs for training.
+        accuracy (pl.metrics.Accuracy): Accuracy metric.
+        train_transforms (torchvision.transforms.Compose): Transformations for training dataset.
+        test_transforms (torchvision.transforms.Compose): Transformations for test dataset.
+        stats_train (torchvision.datasets.CIFAR10): CIFAR-10 training dataset.
+        stats_test (torchvision.datasets.CIFAR10): CIFAR-10 test dataset.
+        cifar10_train (torch.utils.data.Subset): Subset of CIFAR-10 training dataset.
+        cifar10_test (torch.utils.data.Subset): Subset of CIFAR-10 test dataset.
+        cifar10_val (torch.utils.data.Subset): Subset of CIFAR-10 validation dataset.
+        misclassified_data (list): List to store misclassified images.
+
+    """
     def __init__(self, class_names, data_dir='/data/'):
         """
         Constructor
