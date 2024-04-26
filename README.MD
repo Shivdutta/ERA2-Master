@@ -4,6 +4,9 @@
 This repository contains following files:
 
 - `custom_resnet.py`: The architecture utilized is based on Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun's work on Deep Residual Learning for Image Recognition (arXiv:1512.03385).
+- `resnet.py`: Model Architecture by [David C](https://github.com/davidcpage)
+- `resnetS11.py`: The architecture utilized is based on Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun's work on Deep Residual Learning for Image Recognition (arXiv:1512.03385).using 
+   Pytorch Lightning Module.
 - `dataset.py`: This script contains class to use with Albumentations (https://github.com/albumentations-team/albumentations) library with PyTorch dataset
 - `training_utils`: This script contains `train`, `test` functions required for model training along with `get_lr` function to get current learning rate
 - `utils.py`: This script  contains utility functions to visualize data samples, augmentations, misclassified images, dataset statistics and model summary. 
